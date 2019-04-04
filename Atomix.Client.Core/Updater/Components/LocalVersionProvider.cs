@@ -25,7 +25,7 @@ namespace Atomix.Updater
 
     public static class LocalVersionProviderExt
     {
-        public static Updater UseLocalVersionProvider(this Updater updater, string filePath)
+        public static AppUpdater UseLocalVersionProvider(this AppUpdater updater, string filePath)
         {
             return updater.UseVersionProvider(new LocalVersionProvider(filePath));
         }

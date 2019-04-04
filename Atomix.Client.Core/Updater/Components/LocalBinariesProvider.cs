@@ -22,7 +22,7 @@ namespace Atomix.Updater
 
     public static class LocalBinariesProviderExt
     {        
-        public static Updater UseLocalBinariesProvider(this Updater updater, string filePath)
+        public static AppUpdater UseLocalBinariesProvider(this AppUpdater updater, string filePath)
         {
             return updater.UseBinariesProvider(new LocalBinariesProvider(filePath));
         }
