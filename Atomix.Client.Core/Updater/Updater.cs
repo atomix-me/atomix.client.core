@@ -1,9 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Atomix.Updater.Abstract;
@@ -30,6 +26,11 @@ namespace Atomix.Updater
         volatile UpdaterState State;
         DateTime NextCheckTime;
         Version PendingUpdate;
+
+        string InstallerPath => Path.Combine(
+            WorkingDirectory,
+            $"AtomixInstaller{ProductProvider.Extension}"
+        );
         #endregion
 
         #region components
@@ -82,12 +83,15 @@ namespace Atomix.Updater
             if (PendingUpdate == null)
                 throw new NoUpdatesException();
 
-            var packageFile = Path.Combine(WorkingDirectory, $"AtomixInstaller{ProductProvider.Extension}");
-
-            if (!ProductProvider.VerifyPackage(packageFile) || !ProductProvider.VerifyPackageVersion(packageFile, PendingUpdate))
+            if (!File.Exists(InstallerPath) ||
+                !ProductProvider.VerifyPackage(InstallerPath) ||
+                !ProductProvider.VerifyPackageVersion(InstallerPath, PendingUpdate))
+            {
+                PendingUpdate = null;
                 throw new BinariesChangedException();
+            }
 
-            ProductProvider.RunInstallation(packageFile);
+            ProductProvider.RunInstallation(InstallerPath);
         }
 
         async Task CheckForUpdatesAsync()
@@ -104,14 +108,12 @@ namespace Atomix.Updater
                     return; // Already up to date
                 #endregion
 
-                Debug($"Newer version {latestVersion} found, current version {currentVersion}");
+                Warning($"Newer version {latestVersion} found, current version {currentVersion}");
 
                 #region load binaries
-                var packageFile = Path.Combine(WorkingDirectory, $"AtomixInstaller{ProductProvider.Extension}");
-
-                if (!File.Exists(packageFile) ||
-                    !ProductProvider.VerifyPackage(packageFile) ||
-                    !ProductProvider.VerifyPackageVersion(packageFile, latestVersion))
+                if (!File.Exists(InstallerPath) ||
+                    !ProductProvider.VerifyPackage(InstallerPath) ||
+                    !ProductProvider.VerifyPackageVersion(InstallerPath, latestVersion))
                 {
                     Debug("Load binaries");
                     
@@ -119,22 +121,22 @@ namespace Atomix.Updater
                         Directory.CreateDirectory(WorkingDirectory);
 
                     using (var binariesStream = await BinariesProvider.GetLatestBinariesAsync())
-                    using (var fileStream = File.Open(packageFile, FileMode.Create))
+                    using (var fileStream = File.Open(InstallerPath, FileMode.Create))
                     {
                         await binariesStream.CopyToAsync(fileStream);
                     }
                 }
                 #endregion
 
-                Debug($"Binaries loaded to {packageFile}");
+                Debug($"Binaries loaded");
 
                 #region verify binaries
-                if (!ProductProvider.VerifyPackage(packageFile))
+                if (!ProductProvider.VerifyPackage(InstallerPath))
                 {
                     Warning($"Loaded binaries are untrusted");
                     return;
                 }
-                if (!ProductProvider.VerifyPackageVersion(packageFile, latestVersion))
+                if (!ProductProvider.VerifyPackageVersion(InstallerPath, latestVersion))
                 {
                     Warning($"Loaded binaries are not the latest version");
                     return;
@@ -144,7 +146,7 @@ namespace Atomix.Updater
                 PendingUpdate = latestVersion;
 
                 Debug("Binaries verified");
-                UpdatesReady?.Invoke(this, new ReadyEventArgs(latestVersion));
+                UpdatesReady?.Invoke(this, new ReadyEventArgs(latestVersion, InstallerPath));
             }
             catch (Exception ex)
             {
