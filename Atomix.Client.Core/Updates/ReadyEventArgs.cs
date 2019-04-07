@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Atomix.Updater
+namespace Atomix.Updates
 {
     public class ReadyEventArgs : EventArgs
     {
-        public Version Version { get; private set; }
-        public string Installer { get; private set; }
+        public Version Version { get; }
+        public string Installer { get; }
 
         public ReadyEventArgs(Version version, string installer)
         {

@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Atomix.Updater.Exceptions
+namespace Atomix.Updates
 {
     public class BadConfigurationException : Exception
     {
         public BadConfigurationException()
-            : base("Bad Updater configuration")
+            : base("Updater doesn't configured properly")
         {
 
         }

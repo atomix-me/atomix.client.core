@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Atomix.Updater.Exceptions
+namespace Atomix.Updates
 {
     public class NoUpdatesException : Exception
     {
         public NoUpdatesException()
-            : base("Application up to date")
+            : base("Application is up to date")
         {
 
         }

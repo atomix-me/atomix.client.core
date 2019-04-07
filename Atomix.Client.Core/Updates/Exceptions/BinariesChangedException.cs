@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Atomix.Updater.Exceptions
+namespace Atomix.Updates
 {
     public class BinariesChangedException : Exception
     {

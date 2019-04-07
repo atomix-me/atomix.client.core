@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Atomix.Updater.Abstract
+namespace Atomix.Updates.Abstract
 {
     public interface IVersionProvider
     {
