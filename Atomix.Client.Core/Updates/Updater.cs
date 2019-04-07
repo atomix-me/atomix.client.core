@@ -12,7 +12,7 @@ namespace Atomix.Updates
         #region static
         static readonly string WorkingDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Programs/Atomix.me/Updater"
+            "Programs", "Atomix.me", "Updater"
         );
         #endregion
 
@@ -63,7 +63,7 @@ namespace Atomix.Updates
                 return;
 
             IsWorking = true;
-            var task = Background();
+            Task.Run(Background);
 
             Wait.While(() => State == UpdaterState.Inactive, timeout);
         }
